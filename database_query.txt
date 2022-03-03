@@ -114,7 +114,7 @@ insert into location values('Maharashtra','Pune'),('Maharashtra','Mumbai'),('Guj
 
 *********************************************************************************  PROCEDURE *****************************************************************************************
 
-
+//PROCEDURE TO GET A USER'S FEED
 CREATE PROCEDURE uspGetUserFeed
 @userId int
 AS
@@ -122,7 +122,7 @@ SELECT * from activity where userid in (SELECT following_id from follow where us
 
 EXEC uspGetUserFeed @userId =1;
 
-
+//PROCEDURE TO GET A USER'S DETAILS
 CREATE PROCEDURE useGetuserDetail
 @userId int
 AS
@@ -136,6 +136,7 @@ EXEC useGetuserDetail @userId =2;
 
 use bibliophile;
 
+//UDF TO FOLLOWINGS
 CREATE FUNCTION udfGetFollowing(@userId int) 
 RETURNS int
 AS
@@ -147,6 +148,7 @@ END;
 
 select dbo.udfGetFollowing(1) as FOLLOWING;
 
+//UDF TO GET FOLLOWERS
 CREATE FUNCTION udfGetFollowers(@userId int) 
 RETURNS int
 AS
@@ -162,7 +164,7 @@ select dbo.udfGetFollowERS(1) as FOLLOWERS;
 
 ********************************************************************************* VIEWS ************************************************************************************************
 
-
+//VIEW TO SEE USERS DETAILS
 CREATE VIEW vUser
 AS
 SELECT u.u_id, u.username,u.email, u.pass, u.dob, u.bio, u.profilepic, l.city, l.[state], g.gender from users u,
