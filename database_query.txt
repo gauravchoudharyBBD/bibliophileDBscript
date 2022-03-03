@@ -1,0 +1,174 @@
+use bibliophile;
+
+********************************************************************************* CREATE STATEMENT *****************************************************************************************
+//USER TABLE CREATE STATEMENT
+create table users(u_id int IDENTITY(1,1) NOT NULL ,username varchar(20) ,email varchar(20),pass varchar(20),dob date , profilepic varchar(200),bio varchar(50), [LOCATION] INT ,GENDER INT);
+
+
+//GENDER TABLE CREATE STATEMENT
+CREATE TABLE gender(gender_id int primary key,gender varchar(10));
+
+//LOCATION TABLE CREATE STATEMENT
+create table location(location_id int identity(1,1) unique,[State] varchar(15) not null,city varchar(15) not null );
+
+//ADD CONSTRAINT TO LOCATION TABLE
+alter table [location]
+add constraint pklocation primary key([State],city);
+
+//BOOKDATA TABLE CREATE STATEMENT
+create table bookdata(book_id int IDENTITY(1,1) PRIMARY KEY,book_title varchar(20),book_author varchar(20),bookcover varchar(200),book_content varchar(200));
+
+//FOLLOW TABLE CREATE STATEMENT
+create table follow(f_id int IDENTITY(1,1) primary key NOT NULL,userid int FOREIGN KEY REFERENCES users(u_id),following_id int);
+
+//ACTIVITY TABLE CREATE STATEMENT
+create table Activity(A_id int IDENTITY(1,1) primary key NOT NULL,userid int FOREIGN KEY REFERENCES users(u_id),bookid int FOREIGN KEY REFERENCES bookdata(book_id),book_status int ,updated_at date);
+
+// ADD CONSTRAINT TO ACTIVITY TABLE
+alter table activity
+add constraint default_constrain default GETDATE() for updated_at;
+   
+//TRIGGER TO UPDATE TIMESTAMP
+create trigger activity_trigger on Activity
+After insert , update as 
+update Activity
+set updated_at = GETDATE()
+from inserted i;
+
+//LIKES TABLE CREATE STATEMENT
+create table Likes(Activity_id int FOREIGN KEY REFERENCES Activity(A_id) ,userid int FOREIGN KEY REFERENCES users(u_id) );
+
+//FAVOURITES TABLE CREATE STATEMENT
+create table Favourites(userid int FOREIGN KEY REFERENCES users(u_id),bookid int FOREIGN KEY REFERENCES bookdata(book_id));
+
+
+//BOOKSTORE TABLE CREATE STATEMENT
+create table bookstore(product_id int IDENTITY(1,1) primary key not null,userid int FOREIGN KEY REFERENCES users(u_id),book_id int FOREIGN KEY REFERENCES bookdata(book_id),img varchar(200),condition varchar(200),price int,sold_status int);
+
+//ADD CONSTRAINT FOR SOLD_STATUS IN BOOKSTORE TABLE
+alter table bookstore
+add constraint sold_constraint default(0) for sold_status;
+
+
+********************************************************************************* INSERT STATEMENT *****************************************************************************************
+
+//INSERT QUERY FOR USERS TABLE	
+insert into users values('Gaurav','gaurav@gmail.com','123','12 march 1999','imageloc','i like reading non-fiction books'),
+						('Akash','akash@gmail.com','123','1 april 1998','imageloc','hey everyone'),
+						('Sameer','sameer@gmail.com','123','2 may 1997','imageloc','lets read together'),
+						('Pratik','pratik@gmail.com','123','5 june 2000','imageloc','history buff'),
+						('Shreya','shreya@gmail.com','123','17 august 1995','imageloc','hello there!'),
+						('Ankita','ankita@gmail.com','123','25 july 2000','imageloc','i love reading'),
+						('Ravi','ravi@gmail.com','123','31 january 1999','imageloc','book >>'),
+						('Tina','tina@gmail.com','123','28 october 1996','imageloc','hmm'),
+						('Navin','navin@gmail.com','123','19 november 1997','imageloc','i like reading fiction books');
+
+
+//INSERT QUERY FOR FOLLOW TABLE
+insert into follow values(9,2),(2,3),(4,1),(5,2),(1,6),(1,7),(7,1),(2,1);
+
+
+//INSERT QUERY FOR BOOKDATA TABLE
+insert into bookdata values('thousand splendid suns','khaleed hosseini','image location','a story in times of war'),
+('Shoe Dog','Phil Knight ','image location','autobiography'),
+('The Alchemist','Paulo Coelho','image location','finding your path'),
+('Steve Jobs','Issacson Walter','image location','biography'),
+('Range','David Epstein','image location','how genralists triumph over specialists'),
+('Ikigai','Hector Garcia','image location','japanese way of life'),
+('Atomic Habits','James Clear','image location','build good habits'),
+('Norwegian Woods','Haruki Murakami','image location','tragic love story'),
+('The book thief','Markus Zusak','image location','a story in times of war');
+
+
+//INSERT QUERY FOR ACTIVITY TABLE
+insert into activity values(1,4,1,GETDATE()),
+(2,6,2,GETDATE()),
+(3,8,3,GETDATE()),
+(3,7,2,GETDATE()),
+(1,9,1,GETDATE()),
+(5,5,1,GETDATE()),
+(2,10,3,GETDATE()),
+(6,9,3,GETDATE()),
+(8,12,2,GETDATE());
+
+
+//INSERT QUERY FOR FAVOURITE TABLE
+insert into Favourites VALUES(1,4),(2,4),(4,1),(1,5),(2,6),(5,6),(6,8),(5,6),(8,5),(7,1);
+
+
+//INSERT QUERY FOR LIKES TABLE
+INSERT INTO LIKES VALUES(3,1),(2,2),(4,2),(4,6),(7,2),(6,5),(7,3),(8,8),(9,3),(3,6);
+
+
+//INSERT QUERY FOR BOOKSTORE TABLE
+insert into bookstore values(1,6,'imgloc','good',120),
+	                    (3,8,'imgloc','excellent',300),(5,7,'imgloc','old',200);
+
+//INSERT QUERY FOR GENDER TABLE
+insert into gender values(1,'Male'),(2,'Female'),(3,'Other');
+
+//INSERT QUERY FOR LOCATION TABLE
+insert into location values('Maharashtra','Pune'),('Maharashtra','Mumbai'),('Gujarat','Surat'),('Gujarat','Ahemdabad');
+
+
+
+*********************************************************************************  PROCEDURE *****************************************************************************************
+
+
+CREATE PROCEDURE uspGetUserFeed
+@userId int
+AS
+SELECT * from activity where userid in (SELECT following_id from follow where userid = @userId)
+
+EXEC uspGetUserFeed @userId =1;
+
+
+CREATE PROCEDURE useGetuserDetail
+@userId int
+AS
+SELECT * from vUser where u_id = @userId;
+
+EXEC useGetuserDetail @userId =2;
+
+
+********************************************************************************* USER DEFINED FUNCTION *****************************************************************************************
+
+
+use bibliophile;
+
+CREATE FUNCTION udfGetFollowing(@userId int) 
+RETURNS int
+AS
+BEGIN
+DECLARE @FOLLOWERCOUNT int;
+ SELECT @FOLLOWERCOUNT = COUNT(following_id) from follow where userid= @userId;
+RETURN @FOLLOWERCOUNT;
+END;
+
+select dbo.udfGetFollowing(1) as FOLLOWING;
+
+CREATE FUNCTION udfGetFollowers(@userId int) 
+RETURNS int
+AS
+BEGIN
+DECLARE @FOLLOWERCOUNT int;
+ SELECT @FOLLOWERCOUNT = COUNT(userid) from follow where following_id= @userId;
+RETURN @FOLLOWERCOUNT;
+END;
+
+
+select dbo.udfGetFollowERS(1) as FOLLOWERS;
+
+
+********************************************************************************* VIEWS ************************************************************************************************
+
+
+CREATE VIEW vUser
+AS
+SELECT u.u_id, u.username,u.email, u.pass, u.dob, u.bio, u.profilepic, l.city, l.[state], g.gender from users u,
+[location] l, gender g where u.[location]=l.location_id and u.gender = g.gender_id;
+
+
+
+
+                          
