@@ -125,7 +125,7 @@ insert into location values('Maharashtra','Pune'),('Maharashtra','Mumbai'),('Guj
 CREATE PROCEDURE uspGetUserFeed
 @userId int
 AS
-SELECT * from activity where userid in (SELECT following_id from follow where userid = @userId)
+SELECT * from activity where userid in (SELECT following_id from follow where userid = @userId) order by updated_at DESC;
 
 EXEC uspGetUserFeed @userId =1;
 
