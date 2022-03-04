@@ -4,6 +4,13 @@ use bibliophile;
 //USER TABLE CREATE STATEMENT
 create table users(u_id int IDENTITY(1,1) NOT NULL ,username varchar(20) ,email varchar(20),pass varchar(20),dob date , profilepic varchar(200),bio varchar(50), [LOCATION] INT ,GENDER INT);
 
+//ADD FOREIGN KEY 
+alter table users
+add constraint genderFK FOREIGN KEY(GENDER) REFERENCES gender(gender_id);
+
+//ADD FOREIGN KEY 
+alter table users
+add constraint locationFK FOREIGN KEY([LOCATION]) REFERENCES [location](location_id);
 
 //GENDER TABLE CREATE STATEMENT
 CREATE TABLE gender(gender_id int primary key,gender varchar(10));
