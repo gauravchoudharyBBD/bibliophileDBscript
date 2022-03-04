@@ -166,7 +166,7 @@ RETURN @FOLLOWERCOUNT;
 END;
 
 
-select dbo.udfGetFollowERS(1) as FOLLOWERS;
+select dbo.udfGetFollowers(1) as FOLLOWERS;
 
 
 ********************************************************************************* VIEWS ************************************************************************************************
