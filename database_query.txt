@@ -2,7 +2,7 @@ use bibliophile;
 
 ********************************************************************************* CREATE STATEMENT *****************************************************************************************
 //USER TABLE CREATE STATEMENT
-create table users(u_id int IDENTITY(1,1) NOT NULL ,username varchar(20) ,email varchar(20),pass varchar(20),dob date , profilepic varchar(200),bio varchar(50), [LOCATION] INT ,GENDER INT);
+create table users(u_id int IDENTITY(1,1) PRIMARY KEY ,username varchar(20) ,email varchar(20),pass varchar(20),dob date , profilepic varchar(200),bio varchar(50), [LOCATION] INT ,GENDER INT);
 
 //ADD FOREIGN KEY 
 alter table users
@@ -36,11 +36,11 @@ alter table activity
 add constraint default_constrain default GETDATE() for updated_at;
    
 //TRIGGER TO UPDATE TIMESTAMP
-create trigger activity_trigger on Activity
-After insert , update as 
+CREATE trigger [dbo].[activity_trigger] on [dbo].[Activity]
+After update as
 update Activity
 set updated_at = GETDATE()
-from inserted i;
+WHERE A_id in (select A_id from inserted);
 
 //LIKES TABLE CREATE STATEMENT
 create table Likes(Activity_id int FOREIGN KEY REFERENCES Activity(A_id) ,userid int FOREIGN KEY REFERENCES users(u_id) );
